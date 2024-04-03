@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<title>EXPENSE TRACKER</title>
+</head>
+<body>
+    <div class="container">
+<h1>EXPENSE TRACKER</h1>
+<form id="expenseForm" action="expense.php" method="post">
+  <label for="bankBalance">Bank Balance:</label>
+  <input type="number" id="bankBalance" name="bankBalance" required><br><br>
+  
+  <label for="category">Category:</label>
+  <input type="text" id="category" name="category" required>
+  <label for="amount">Amount Spent:</label>
+  <input type="number" id="amount" name="amount" required><br><br>
+  
+  <button type="button" onclick="addExpense()">Add Expense</button>
+</form>
+
+<table id="expenseTable">
+  <thead>
+    <tr>
+      <th>Categories</th>
+      <th>Amounts</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+  </tbody>
+</table>
+
+<button type="button" onclick="calculateTotal()">Calculate Total</button>
+<p id="totalAmount"></p>
+
+<h2>Expenditure History</h2>
+<table id="expenditureHistory">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Expenditure</th>
+    </tr>
+  </thead>
+  <tbody>
+
+  </tbody>
+</table>
+
+<p id="newBalanceText">New Balance:</p>
+<p id="newBalance"></p>
+
+<div id="debtSection" style="display: none;">
+  <h3>Debt</h3>
+  <p id="debtAmount"></p>
+  <p>Message: You are going into debt.</p>
+</div>
+
+<script>
+var inDebt = false;
+
+function addExpense() {
+  if (inDebt) {
+    alert("You cannot enter new data while in debt.");
+    return;
+  }
+
+  var category = document.getElementById("category").value;
+  var amount = parseFloat(document.getElementById("amount").value);
+  
+  var tableRef = document.getElementById("expenseTable").getElementsByTagName('tbody')[0];
+  var newRow = tableRef.insertRow();
+  var cell1 = newRow.insertCell(0);
+  var cell2 = newRow.insertCell(1);
+  cell1.innerHTML = category;
+  cell2.innerHTML = amount.toFixed(2);
+  
+  document.getElementById("category").value = "";
+  document.getElementById("amount").value = "";
+}
+
+function calculateTotal() {
+  var table = document.getElementById("expenseTable");
+  var rows = table.rows;
+  var total = 0;
+
+  for (var i = 1; i < rows.length; i++) {
+    var cell = rows[i].cells[1];
+    var amount = parseFloat(cell.innerHTML);
+    total += amount;
+  }
+
+  document.getElementById("totalAmount").innerText = "Total Amount Spent: $" + total.toFixed(2);
+
+  var bankBalance = parseFloat(document.getElementById("bankBalance").value);
+  var expenditure = total;
+  var date = new Date().toLocaleDateString();
+
+  var historyTable = document.getElementById("expenditureHistory").getElementsByTagName('tbody')[0];
+  var newRow = historyTable.insertRow();
+  var cell1 = newRow.insertCell(0);
+  var cell2 = newRow.insertCell(1);
+  cell1.innerHTML = date;
+  cell2.innerHTML = expenditure.toFixed(2);
+
+  var newBalance = bankBalance - total;
+  if (newBalance < 0) {
+    newBalance = 0;
+    inDebt = true; 
+    document.getElementById("debtSection").style.display = "block"; 
+    document.getElementById("debtAmount").innerText = "Debt Amount: $" + Math.abs(newBalance).toFixed(2);
+  } else {
+    inDebt = false;
+    document.getElementById("debtSection").style.display = "none";
+  }
+  document.getElementById("newBalanceText").innerText = "New Balance:";
+  document.getElementById("newBalance").innerText = "$" + newBalance.toFixed(2);
+  document.getElementById("bankBalance").value = newBalance.toFixed(2);
+}
+</script>
+</div>7
+</body>
+</html>
